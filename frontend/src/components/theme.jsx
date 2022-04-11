@@ -6,6 +6,10 @@ export const theme = createTheme({
             main: "red"
         },
     },
+    palette: {
+        primary: amber,
+        secondary: lightBlue,
+      },
     myButton:{
         backgroundColor:"red",
         color:"white",

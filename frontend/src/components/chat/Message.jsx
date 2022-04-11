@@ -1,11 +1,13 @@
 import {makeStyles} from "@material-ui/core"
-import { width } from "@mui/system"
-
+import axios from "axios";
+import { useEffect, useState } from "react";
+import {format} from 'timeago.js'
 const useStyles = makeStyles((theme) => ({
     message:{
         display:'flex',
         flexDirection:'column',
-        marginTop:'20px'
+        marginTop:'20px',
+        marginLeft:'9px'
     },
     messageTop:{
         display:'flex'
@@ -24,6 +26,13 @@ const useStyles = makeStyles((theme) => ({
         color:'white',
         maxWidth:'300px'
     },
+    messageTextOwn:{
+        padding:'10px',
+        borderRadius:'20px',
+        backgroundColor:'white',
+        color:'#0D8E8E',
+        maxWidth:'300px'
+    },
     messageBottom:{
         fontSize:'12px',
         marginTop:'10px'
@@ -34,37 +43,36 @@ const useStyles = makeStyles((theme) => ({
         marginTop:'20px',
         alignItems:'flex-end',
         backgroundColor:'',
-        color:'black'
+        color:'black',
+        marginRight:'10px'
     }
 }))
 
-function Message() {
+function Message({message,own}) {
+    
+    const[user, setUser] = useState()
     const classes = useStyles()
-    const own =false
+    // useEffect(()=>{
+    //     const fetchUser = async () =>{
+    //       const res = await axios.get(`/api/user?userId=${message.sender}`)
+    //       console.log(res.data);
+    //       setUser(res.data)
+    //     }
+    //     fetchUser()
+    //   },[own])
+
+
   return (
     <>
-    <div className={classes.message}>
+    <div className={own ? classes.own :classes.message}>
         <div className={classes.messageTop}>
             <img
             className={classes.messageImg}
-            src="https://media.istockphoto.com/photos/millennial-male-team-leader-organize-virtual-workshop-with-employees-picture-id1300972574?b=1&k=20&m=1300972574&s=170667a&w=0&h=2nBGC7tr0kWIU8zRQ3dMg-C5JLo9H2sNUuDjQ5mlYfo="
+            src='https://www.kindpng.com/picc/m/207-2074624_white-gray-circle-avatar-png-transparent-png.png'
             />
-            <p className={classes.messageText}>hi this is a first message</p>
-
+            <p className={own ? classes.messageTextOwn :classes.messageText}>{message.text}</p>
         </div>
-        <div className={classes.messageBottom}>1min ago</div>
-    </div>
-
-    <div className={classes.own}>
-        <div className={classes.messageTop}>
-            <img
-            className={classes.messageImg}
-            src="https://avatars.githubusercontent.com/u/84516313?v=4"
-            />
-            <p className={classes.messageText}>hi this is a first message</p>
-
-        </div>
-        <div className={classes.messageBottom}>1min ago</div>
+        <div className={classes.messageBottom}>{format(message.createdAt)}</div>
     </div>
     </>
   )

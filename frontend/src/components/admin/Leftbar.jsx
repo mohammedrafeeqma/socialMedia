@@ -1,5 +1,8 @@
 import { Container, makeStyles, Typography } from "@material-ui/core";
-import { WidgetsOutlined } from "@material-ui/icons";
+import { BarChartOutlined, ReportOutlined, WidgetsOutlined } from "@material-ui/icons";
+import Groups from "@mui/icons-material/Groups";
+import { useNavigate } from "react-router";
+import LogoutOutlined from '@mui/icons-material/LogoutOutlined'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -30,35 +33,43 @@ const useStyles = makeStyles((theme) => ({
   },
   text: {
     
-    fontWeight: 900,
+    fontWeight: 700,
     fontSize: "20px",
+    fontFamily:'Bitter'
   },
 }));
 
 function Leftbar() {
   const classes = useStyles();
+  const navigate = useNavigate()
+
+  const logoutHandler = ()=>{
+    localStorage.removeItem('admin')
+    navigate('/admin')
+  }
   return (
     <Container className={classes.container}>
-      <div className={classes.item}>
+      <div onClick={()=>navigate('/admin/home')} className={classes.item}>
         <WidgetsOutlined className={classes.icon} />
         <Typography className={classes.text}>Home</Typography>
       </div>
-      <div className={classes.item}>
-        <WidgetsOutlined className={classes.icon} />
-        <Typography className={classes.text}>Home</Typography>
+      <div onClick={()=>navigate('/admin/users')} className={classes.item}>
+        <Groups className={classes.icon} />
+        <Typography className={classes.text}>Users</Typography>
       </div>
-      <div className={classes.item}>
-        <WidgetsOutlined className={classes.icon} />
-        <Typography className={classes.text}>Home</Typography>
+      <div onClick={()=>navigate('/admin/reports')} className={classes.item}>
+        <ReportOutlined className={classes.icon} />
+        <Typography className={classes.text}>Reports</Typography>
       </div>
-      <div className={classes.item}>
-        <WidgetsOutlined className={classes.icon} />
-        <Typography className={classes.text}>Home</Typography>
+      <div onClick={()=>navigate('/admin/analystic')} className={classes.item}>
+        <BarChartOutlined className={classes.icon} />
+        <Typography className={classes.text}>Analystics</Typography>
       </div>
-      <div className={classes.item}>
-        <WidgetsOutlined className={classes.icon} />
-        <Typography className={classes.text}>Home</Typography>
+      <div onClick={logoutHandler} className={classes.item}>
+        <LogoutOutlined className={classes.icon} />
+        <Typography className={classes.text}>Logout</Typography>
       </div>
+      
     </Container>
   );
 }

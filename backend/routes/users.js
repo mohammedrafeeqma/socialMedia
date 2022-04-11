@@ -60,18 +60,17 @@ router.get("/", async (req, res) => {
       ? await User.findById(userId)
       : await User.findOne({ username: username });
     res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json(err);
+  } catch (error) {
+    res.status(500).json(error);
   }
 });
-
-//get user with id
-router.post('/', async(req,res)=>{
+//! get user by id
+router.post('/',async(req,res)=>{
   try {
     const user = await User.findById(req.body.userId)
-    console.log(user);
     res.status(200).json(user)
   } catch (error) {
+    console.log(error);
     res.status(500).json(error)
   }
 })
@@ -125,6 +124,20 @@ router.post('/upload/:id',async(req,res)=>{
   }
 })
 
+//! update cover pic
+router.post('/uploadcover/:id',async(req,res)=>{
+  try {
+    const image = req.body.image
+    const user = await User.findById(req.params.id)
+    const uploadResponse = await cloudinary.uploader.upload(image)
+    await User.findByIdAndUpdate(user._id,{$set:{coverPicture:uploadResponse.secure_url}})
+    res.status(200).json("profile has been updated")
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error)
+  }
+})
+
 //! search user
 router.get('/search/:key',async(req,res)=>{
   console.log(req.params.key);
@@ -139,5 +152,17 @@ router.get("/usersList", async (req, res) => {
   console.log(user);
   res.json(user)
 });
+
+//! delete user
+router.delete('/:id',async(req,res)=>{
+  try {
+    const user = await User.findById(req.params.id)
+            await user.deleteOne()
+            res.status(200).json('the post has been deleted')
+  } catch (error) {
+    console.log(error);
+  }
+  res.status(200).json('the user is deleted')
+})
 
 module.exports = router;

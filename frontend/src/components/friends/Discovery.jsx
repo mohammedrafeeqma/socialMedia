@@ -7,11 +7,12 @@ import { listuserDetails } from "../../actions/productAction"
 
 const useStyles = makeStyles((theme) => ({
     card:{
-        margin:theme.spacing(1)
+        margin:theme.spacing(1),
+        width:'15%'
         
     },
     main:{
-        marginTop: theme.spacing(15),
+        marginTop: theme.spacing(4),
     },
     mainDiv:{
         display:'flex',
@@ -52,7 +53,7 @@ function Discovery() {
     },[user._id])
   return (
       <div className={classes.main}>
-      <Typography style={{marginLeft:'10px'}} variant="h5">Discovery</Typography>
+      <Typography style={{marginLeft:'10px',fontWeight:600,fontFamily:'Bitter'}} variant="h5">Discovery</Typography>
     <div className={classes.mainDiv}> 
     {freinds?.map((f)=>{
         return(

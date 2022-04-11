@@ -3,6 +3,7 @@ import { Add, ImportantDevices, Remove } from "@material-ui/icons";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { listuserDetails } from "../../actions/productAction";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,25 +32,30 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 300,
   },
   rightbarFollowings: {
-    marginTop:theme.spacing(5),
+    // marginTop:theme.spacing(5),
     display: "flex",
     flexWrap: "wrap",
-    justifyContent: "baseline",
-    alignContent:'space-between'
+    // justifyContent: "baseline",
+    // alignContent:'space-between',
+    marginLeft:theme.spacing(3)
 
 
   },
   rightbarFollowing: {
     display: "flex",
     flexDirection: "column",
-    marginBottom: "20px",
+    alignItems:'space-between',
+    paddingBottom: "0px",
     cursor: "pointer",
+    '&:hover':{
+      cursor:'pointer'
+    }
     
 
   },
   rightbarFollowingImg: {
-    width: "100%",
-    height: "100px",
+    // width: "100%",
+    // height: "100px",
     objectFit: "cover",
     borderRadius: "5px",
     paddingRight: "10px",
@@ -61,8 +67,9 @@ const useStyles = makeStyles((theme) => ({
   },
   rightbarFollowingName: {
     alignItems: "center",
-    fontSize:"21px",
-    fontWeight:400
+    fontSize:"18px",
+    fontWeight:500,
+    color:'black'
   },
   followButton:{
     backgroundColor:'#0D8E8E',
@@ -85,7 +92,8 @@ const useStyles = makeStyles((theme) => ({
   },
   header:{
     display:'flex'
-  }
+  },
+  
 }));
 
 function ProfileRightBar({ user: profileUser }) {
@@ -100,6 +108,7 @@ function ProfileRightBar({ user: profileUser }) {
   const [friends, setFreinds] = useState([]);
   const [followed, setFollowed] = useState(user.following?.includes(profileUser?._id))
   const sameFriend = friends.username === user.username
+  const navigate = useNavigate()
 
 
   useEffect(() => {
@@ -132,7 +141,17 @@ function ProfileRightBar({ user: profileUser }) {
         await axios.put(`/api/user/${profileUser._id}/follow`, {
           userId: user._id,
         });
+        await axios.post('/api/notification/',{
+          userId:profileUser._id,
+          friendName:user.username,
+          img:user.profilePicture,
+          action:'Follows you'
+        })
         dispatch(listuserDetails(id));
+        await axios.post('/api/conversation/',{
+          senderId:user._id,
+          recieverId:profileUser._id
+        })
       }
       setFollowed(!followed)
     
@@ -153,7 +172,7 @@ function ProfileRightBar({ user: profileUser }) {
           
         </Button>
       )}
-      <div className={classes.follows}>
+      <div style={{marginLeft:'20px'}} className={classes.follows}>
           <div className={classes.followers}>
           <Typography className={classes.followNum}>{profileUser.followers?.length}</Typography>
           <Typography className={classes.followText}>Followers</Typography>
@@ -203,13 +222,19 @@ function ProfileRightBar({ user: profileUser }) {
           {friends.map((friend) => (
             
             friend.username!==user.username &&
-            <Card key={friend._id} className={classes.rightbarfollowing}>
-              <img
+            <div onClick={()=>navigate('/profile/'+friend.username)} key={friend._id} className={classes.rightbarfollowing}>
+              <div style={{marginBottom:'15px'}}>
+                <img width='100' height='100'
                 src={friend.profilePicture?friend.profilePicture:'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'}
                 className={classes.rightbarFollowingImg}
               />
+              <div style={{marginLeft:'10px',marginTop:'5px'}}>
               <Typography className={classes.rightbarFollowingName} variant="span">{friend.username}</Typography>
-            </Card>
+              </div>
+
+              </div>
+              
+            </div>
           ))}
         </div>
       </div>

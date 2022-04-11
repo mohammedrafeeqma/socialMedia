@@ -1,12 +1,13 @@
-import {Avatar, Card, CardActions, CardContent, CardHeader, CardMedia, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, Typography} from "@material-ui/core"
+import {Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, DialogActions, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, Snackbar, TextareaAutosize, Typography} from "@material-ui/core"
 import { red } from "@material-ui/core/colors"
-import { Delete, DeleteOutlined, MoreVert, Report, ThumbUp } from "@material-ui/icons"
+import { Delete, DeleteOutlined, Favorite, FavoriteBorderOutlined, MoreVert, Report, ThumbUp } from "@material-ui/icons"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useSelector } from "react-redux"
 import {format} from 'timeago.js'
-import { Dialog, ListItemButton } from "@mui/material"
+import { Alert, Dialog, ListItemButton } from "@mui/material"
 import { useNavigate } from "react-router"
+import Comment from "./Comment"
 
 const useStyles = makeStyles((theme) => ({
     container:{
@@ -34,7 +35,10 @@ const useStyles = makeStyles((theme) => ({
         marginLeft:"auto"
     },
     avatar:{
-        backgroundColor: red[500]
+        backgroundColor: red[500],
+        "&:hover":{
+          cursor:'pointer'
+        }
     },
     likeColor:{
         color:"primary",
@@ -49,7 +53,10 @@ const useStyles = makeStyles((theme) => ({
        position:'absolute',
        top:-25,
        right:20,
-       backgroundColor:'#ededed'
+       backgroundColor:'white',
+       border:'1px solid black',
+       zIndex:'1'
+
     
    },
    avatarImg:{
@@ -69,10 +76,18 @@ function Post({post}) {
     const[isLiked, setIsLiked] = useState(false)
     const[postOption, setPostOption] = useState(false)
     const[refresh, setRefresh] = useState(false)
+    const[confirm, setConfirm] = useState(false)
+    const[alertBar, setAlertBar] = useState(false)
+    const[openComment, setOpenComment] = useState(false)
+    const[message, setMessage] = useState('')
+    const[comment, setComment] = useState([])
+    const[commentMsg, setCommentMsg] = useState('')
+    const[readMore, setReadMore] = useState('')
     const userDetails = useSelector( state => state.userDetails)
     const{ loading, error, user} = userDetails
     let userPost = user?.username === userFriend?.username
     const navigate = useNavigate()
+   const isFavourite = user.favourite.includes(post._id)
 
     useEffect(()=>{
         setIsLiked(post?.likes.includes(user._id))
@@ -82,18 +97,32 @@ function Post({post}) {
         const fetchUser = async()=>{
             const res = await axios.get(`/api/user?userId=${post.userId}`)
             setUserFriend(res.data)
-        
             
         }
         fetchUser()
     },[post?.userId,post,refresh])
 
-
+       const fetchComment = async(p)=>{
+            setOpenComment(!openComment)
+            const res = await axios.get('/api/post/comment/'+p)
+            setComment(res.data)
+        }
+        
     
-
-    const likeHandler = ()=>{
+    const likeHandler = async()=>{
         try{
-            axios.put('/api/post/'+post._id+'/like',{userId: user._id})
+           const res = await axios.put('/api/post/'+post._id+'/like',{userId: user._id})
+           if(res.data=="The post has been Liked" && user._id!=post.userId)
+           {
+               await axios.post('/api/notification/',{
+                userId:userFriend._id,
+                friendName:user.username,
+                img:post.img,
+                postId:post._id,
+                action:'Liked your post'
+            })
+           }
+            
         }
         catch(err)
         {}
@@ -101,16 +130,66 @@ function Post({post}) {
             setIsLiked(!isLiked)
         
     }
+    const reportHandle = async() => {
+        try {
+            const res = await axios.put('/api/post/'+post._id+'/report',{userId:user._id})
+            setMessage(res.data)
+            setPostOption(false)
+            setAlertBar(true)
+        } catch (error) {
+            
+        }
+    }
+    const addToFavourite = async()=>{
+
+        try {
+           const res = await axios.put('/api/post/'+post._id+'/favourite', {userId: user._id})
+           if(res)
+           {
+            setMessage(res.data)
+            setPostOption(false)
+            setAlertBar(true)
+           }
+        } catch (error) {
+            
+        }
+    }
+    const deleteHandle = async()=>{
+        setConfirm(true)
+    }
     const deletePost=async()=>{
          const res = await axios.delete('/api/post/'+post._id, {userId: user?._id})
          window.location.reload()
          setRefresh(!refresh)
          
     }
+    const cancelDelete = ()=>{
+        setConfirm(false)
+        setPostOption(false)
+
+    }
+
+    const commentHandle = async()=>{
+       try {
+           const res = await axios.post('/api/post/comment/',{userId:user?._id, postId:post._id,comment:commentMsg})
+           if(res.data)
+           {
+               setCommentMsg('')
+               fetchComment(post._id)
+               setOpenComment(true)
+           }
+       } catch (error) {
+
+           
+       }
+    }
+    
   return (
     <>
         
-    
+    <Snackbar open={alertBar} onClose={()=>setAlertBar(false)} autoHideDuration={2000}>
+        <Alert onClose={()=>setAlertBar(false)} severity='success'>{message}</Alert>
+    </Snackbar>
 
     {post?
     <Card className={classes.card}>
@@ -133,16 +212,16 @@ function Post({post}) {
 
         </CardHeader>
         <CardContent className={classes.cardContent}>
-        {postOption&&  <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }} className={classes.option}>
-                       {userPost&& <ListItem disablePadding>
-                            <ListItemButton onClick={()=>{deletePost(post)}}>
+        {postOption&&  <List sx={{ width: '100%', maxWidth: 360 }} className={classes.option}>
+                       {userPost&& <ListItem  disablePadding>
+                            <ListItemButton onClick={deleteHandle}>
                                 <ListItemIcon>
                                     <Delete/>
                                 </ListItemIcon>
                                 <ListItemText primary='Delete'/>
                             </ListItemButton>
                         </ListItem>}
-                        <ListItem disablePadding>
+                        <ListItem onClick={reportHandle} disablePadding>
                             <ListItemButton>
                                 <ListItemIcon>
                                     <Report/>
@@ -150,6 +229,14 @@ function Post({post}) {
                                 <ListItemText primary='Report'/>
                             </ListItemButton>
                         </ListItem>
+                        {post.img && <ListItem disablePadding>
+                            <ListItemButton onClick={addToFavourite}>
+                                <ListItemIcon>
+                                    <Favorite  color={isFavourite? 'secondary':'amber'}/>
+                                </ListItemIcon>
+                                <ListItemText primary='Favourite'/>
+                            </ListItemButton>
+                        </ListItem>}
                 </List>
                 
                 }
@@ -166,18 +253,81 @@ function Post({post}) {
         title = "city"
         />
         :''}
+        
         <CardActions disableSpacing>
             <IconButton aria-label="like" className={classes.likeColor} onClick={likeHandler}>
                 <ThumbUp style={isLiked?{color:"#2ab0b0"}:{color:""}}/>  
             </IconButton>
-            <Typography>{like} people like it</Typography>
+            <Typography>{like}</Typography>
             <IconButton aria-label="like" className={classes.expand}>
-                <Typography>Comments</Typography>
+                <Typography onClick={()=>fetchComment(post._id)}>{comment.length?comment.length:''} Comments</Typography>
             </IconButton>
-
         </CardActions>
+        {
+            readMore?
+            comment.map((c)=>{
+                return(
+                    <>
+                   <Comment fetchComment={fetchComment} c={c} openComment={openComment}/>
+
+                    </>
+                )
+            })
+            :
+            comment.slice(0,3).map((c)=>{
+                return(
+                    <>
+                   <Comment fetchComment={fetchComment} c={c} openComment={openComment}/>
+        
+                    </>
+                   
+                )
+            })
+        
+    
+        }
+        <div style={{display:'flex', justifyContent:'end'}}>
+       { comment.length>3 && <Typography onClick={()=>setReadMore(true)} style={readMore?{display:'none'} :openComment?{display:'block',marginRight:'30px',marginBottom:'10px',color:'#0D8E8E'}:{display:'none'}}>Readmore</Typography>
+        }
+
+        {comment.length>3 && <Typography onClick={()=>setReadMore(false)} style={readMore?{display:'block',marginRight:'30px',marginBottom:'10px',color:'#0D8E8E'}:{display:'none'}}>Readless</Typography>
+        }
+    
+
+         </div>        
+        <div style={openComment?{display:'flex', justifyContent:'space-around',marginBottom:'10px'}:{display:'none'}}>
+        <TextareaAutosize
+        value={commentMsg}
+        onChange={(e)=>setCommentMsg(e.target.value)}
+        minRows={2}
+        placeholder="Comments"
+        style={{width:'70%', borderRadius:'10px',paddingLeft:'8px',paddingTop:'8px'}}
+        />
+
+        <Button onClick={commentHandle}  variant="contained" style={{color:'white', backgroundColor:'green',height:'35px'}}>Send</Button>
+
+    </div>
+            
+
+        <Dialog open={confirm} onClose={()=>setConfirm(false)}>
+        <DialogTitle style={{fontWeight:700}}>
+            Delete?
+        </DialogTitle>
+        <hr/>
+        <DialogContent>
+        Items that you delete can't be restored.
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={()=>deletePost(post)} variant="contained" style={{color:'white', backgroundColor:'#0D8E8E'}}>Delete</Button>
+            <Button variant="contained" onClick={()=>cancelDelete()} style={{color:'#0D8E8E', backgroundColor:'white'}}>Cancel</Button>
+        </DialogActions>
+
+    </Dialog>
+
     </Card>
     :""}
+
+    
     </>
   )
 }

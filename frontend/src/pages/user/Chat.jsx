@@ -1,7 +1,8 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { listuserDetails } from "../../actions/productAction";
 import ChatLeft from "../../components/chat/ChatLeft";
 import ChatMsg from "../../components/chat/ChatMsg";
 import ChatRight from "../../components/chat/ChatRight";
@@ -14,6 +15,16 @@ function Chat() {
   const userDetails = useSelector((state) => state.userDetails);
   const { loading, error, user } = userDetails;
   const [conversations, setConversations] = useState([]);
+  const[currentChat, setCurrentChat] = useState('')
+  const [onlineUsers, setOnlineUsers] = useState([])
+  const id = localStorage.getItem("userId");
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    dispatch(listuserDetails(id));
+  }, []);
+
+
 
   useEffect(() => {
     const getConversation = async () => {
@@ -25,19 +36,21 @@ function Chat() {
       }
     }
     getConversation()
-  },[user?._id]);
+  },[]);
+
+  
   return (
     <>
       <Navbar />
       <Grid container>
         <Grid item sm={2}>
-          <ChatLeft conversations={conversations} />
+          <ChatLeft conversations={conversations} currentChat={currentChat} setCurrentChat={setCurrentChat} />
         </Grid>
         <Grid item sm={7}>
-          <ChatMsg />
+          <ChatMsg onlineUsers={onlineUsers} setOnlineUsers={setOnlineUsers} setCurrentChat={setCurrentChat} currentChat={currentChat} />
         </Grid>
         <Grid item sm={3}>
-          <ChatRight />
+          <ChatRight onlineUsers={onlineUsers} />
         </Grid>
       </Grid>
     </>

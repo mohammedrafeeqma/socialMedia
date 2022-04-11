@@ -1,10 +1,13 @@
 import {Container, makeStyles} from "@material-ui/core"
+import { grey } from "@material-ui/core/colors"
 import Conv from "./Conv"
 
 const useStyles = makeStyles((theme) => ({
     mainDiv:{
         backgroundColor: theme.palette.grey[50],
-        height:'100vh'
+        height:'100vh',
+        position:'fixed',
+        marginTop:theme.spacing(1),
     },
     conversation:{
         display:'flex',
@@ -29,22 +32,27 @@ const useStyles = makeStyles((theme) => ({
         width: '80%',
         border: 'none',
         borderBottom: '1px solid gray'
+    },
+    eachDiv:{
+        '&:hover':{
+            backgroundColor:grey[100]
+        }
     }
 }))
 
-function ChatLeft({conversations}) {
+function ChatLeft({conversations, setCurrentChat, currentChat}) {
     const classes = useStyles()
 
-    
   return (
     <div className={classes.mainDiv}>
 
-    <input placeholder="Search for friends" className={classes.searchInput} type="text"/>
     <Container >
         {conversations.map((c)=>{
             
             return(
-                <Conv key={c._id} conversation={c}/>
+                <div className={classes.eachDiv} key={c._id} onClick={()=>setCurrentChat(c)}>
+                <Conv  conversation={c}/>
+                </div>
             )
         })}
         

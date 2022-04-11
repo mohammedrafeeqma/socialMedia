@@ -7,8 +7,9 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { AccountCircleOutlined } from "@material-ui/icons";
-import { useEffect } from "react";
+import { AnnouncementOutlined } from "@material-ui/icons";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { listuserDetails } from "../../../actions/productAction";
@@ -16,7 +17,7 @@ import { listuserDetails } from "../../../actions/productAction";
 const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.spacing(10),
-    position: "sticky",
+    position: "fixed",
     top: 0,
 
     [theme.breakpoints.down("sm")]: {
@@ -41,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
     width: "40px",
     height: "40px",
     borderRadius: "50%",
+    marginBottom:'9px'
   },
   onlineFriendsText: {
     fontWeight: 500,
@@ -53,26 +55,48 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "50%",
     backgroundColor: "limegreen",
     position: "absolute",
-    top: -1,
+    top: -6,
     left: 24,
     border: "2px solid white",
   },
 }));
 
-function Rightbar() {
+function Rightbar({onlineUsers}) {
   const classes = useStyles();
 
   const userDetails = useSelector((state) => state.userDetails);
   const { loading, error, user } = userDetails;
+  const[friends, setFriends] = useState()
+  const[onlineFriends, setOnlineFriends] = useState()
   const dispatch = useDispatch();
   let { id } = useParams();
   useEffect(() => {
     dispatch(listuserDetails(id));
   }, [id, dispatch]);
 
+  useEffect(() => {
+        
+    const getFriends = async () => {
+        try {
+             const res = await axios.get("/api/user/friends/" + user?._id);
+             console.log(res);
+      setFriends(res.data);
+        } catch (error) {
+            console.log(error);
+        }
+     
+    };
+    getFriends();
+  },[user?._id]);
+
+  useEffect(() => {
+    setOnlineFriends(friends?.filter((f) => onlineUsers?.includes(f._id)));
+  }, [friends, onlineUsers]);
+  
+
   return (
     <Container className={classes.container}>
-      <Card>
+      <Card style={{width:'25%'}}>
         <CardContent style={{ display: "flex" }}>
           <CardMedia
             className={classes.cover}
@@ -111,45 +135,31 @@ function Rightbar() {
         <Typography className={classes.rightBarTitle} variant="h4">
           Online Friends
         </Typography>
-        <div className={classes.onlineFriends}>
-          <AccountCircleOutlined className={classes.onlineFriendsIcon} />
-          <Box
-            component="div"
-            display="inline"
-            className={classes.onlineIcon}
-          ></Box>
-          <Typography className={classes.onlineFriendsText}>Arif</Typography>
-        </div>
 
-        <div className={classes.onlineFriends}>
-          <AccountCircleOutlined className={classes.onlineFriendsIcon} />
+        {onlineFriends?.length>0? onlineFriends.map((o)=>{
+          return(
+            <div key={o._id} className={classes.onlineFriends}>
+          <img src={o.profilePicture} className={classes.onlineFriendsIcon} />
           <Box
             component="div"
             display="inline"
             className={classes.onlineIcon}
           ></Box>
-          <Typography className={classes.onlineFriendsText}>Ajith</Typography>
+          <Typography className={classes.onlineFriendsText}>{o.username}</Typography>
         </div>
+          )
+        }):<div style={{width:'20%',textAlign:'center'}}>
+          <AnnouncementOutlined style={{fontSize:'44px'}}/>
+          <Typography style={{color:'grey'}} variant="p" component='div'>You have no friends online</Typography>
+          
+          <Typography style={{color:'grey',marginLeft:'0px'}} variant="p">at the moment</Typography>
+          
+          </div>}
+        
 
-        <div className={classes.onlineFriends}>
-          <AccountCircleOutlined className={classes.onlineFriendsIcon} />
-          <Box
-            component="div"
-            display="inline"
-            className={classes.onlineIcon}
-          ></Box>
-          <Typography className={classes.onlineFriendsText}>Sinvan</Typography>
-        </div>
+        
 
-        <div className={classes.onlineFriends}>
-          <AccountCircleOutlined className={classes.onlineFriendsIcon} />
-          <Box
-            component="div"
-            display="inline"
-            className={classes.onlineIcon}
-          ></Box>
-          <Typography className={classes.onlineFriendsText}>Mansoor</Typography>
-        </div>
+       
       </Box>
     </Container>
   );

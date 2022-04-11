@@ -7,11 +7,12 @@ import { listuserDetails } from "../../actions/productAction"
 
 const useStyles = makeStyles((theme) => ({
     card:{
-        margin:theme.spacing(1)
+        margin:theme.spacing(1),
+        width:'15%'
         
     },
     main:{
-        marginTop: theme.spacing(15),
+        marginTop: theme.spacing(4),
     },
     mainDiv:{
         
@@ -53,12 +54,12 @@ function AllFriends() {
     },[user._id])
   return (
       <div className={classes.main}>
-      <Typography style={{marginLeft:'10px'}} variant="h5">All Friends</Typography>
+      <Typography style={{marginLeft:'10px',fontWeight:600,fontFamily:'Bitter'}} variant="h5">All Friends</Typography>
     <div className={classes.mainDiv}> 
     {freinds?.map((f)=>{
         return(
 
-            <Card key={f._id} sx={{ maxWidth : 345}} className={classes.card}>
+            <Card key={f._id}  className={classes.card}>
         <CardMedia
         className={classes.cardImage}
         component="img"

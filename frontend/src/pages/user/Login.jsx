@@ -104,21 +104,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Login() {
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
+  useEffect(() => {
+    
+    
     if (token) {
+  
       navigate(`/${userId}`);
     }
-  });
+  },[token,userId]);
   const [open, setOpen] = useState(false);
   const classes = useStyles();
-  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [uerror, setuError] = useState("");
   const [error, setError] = useState("");
-  const [perror, setpError] = useState("");
+  const [perror, setpError] = useState(""); 
   const handleLogin = async (e) => {
     e.preventDefault();
     setuError("");

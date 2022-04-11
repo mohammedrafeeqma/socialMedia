@@ -1,5 +1,6 @@
 import { Avatar, Container, makeStyles, Typography } from "@material-ui/core";
 import { CallToAction, Collections, Event, ImageSearchOutlined, People } from "@material-ui/icons";
+import { Tooltip } from "@mui/material";
 
 const useStyles = makeStyles((theme) => ({
     container:{
@@ -16,7 +17,10 @@ const useStyles = makeStyles((theme) => ({
     item:{
         display:'flex',
         alignItems:'center',
-        marginBottom:theme.spacing(4)
+        marginBottom:theme.spacing(4),
+        '&:hover':{
+          cursor:'pointer'
+        }
     },
     icon:{
         marginRight:theme.spacing(1)
@@ -43,17 +47,26 @@ function SearchLeft() {
 
       <div className={classes.item}>
         <CallToAction className={classes.icon} />
+        <Tooltip title="comming soon">
         <Typography className={classes.text}>Post</Typography>
+        </Tooltip>
+        
       </div>
 
       <div className={classes.item}>
         <Collections className={classes.icon} />
-        <Typography className={classes.text}>Photos</Typography>
+        <Tooltip title="comming soon">
+          <Typography className={classes.text}>Photos</Typography>
+        </Tooltip>
+        
       </div>
 
       <div className={classes.item}>
         <Event className={classes.icon} />
-        <Typography className={classes.text}>Events</Typography>
+        <Tooltip title="comming soon">
+          <Typography className={classes.text}>Events</Typography>
+        </Tooltip>
+        
       </div>
     </Container>
   );

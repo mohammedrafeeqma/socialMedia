@@ -6,14 +6,14 @@ import Leftbar from "../../components/home/leftbar/Leftbar";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { EditRounded } from "@material-ui/icons";
+import { EditRounded, InsertPhoto } from "@material-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { listuserDetails } from "../../actions/productAction";
 
 const useStyles = makeStyles((theme) => ({
     profile:{
         display:"flex",
-        marginTop:theme.spacing(8)
+        marginTop:theme.spacing(0)
     },
     profileCover:{
         height:"320px",
@@ -59,6 +59,13 @@ const useStyles = makeStyles((theme) => ({
       position:'absolute',
       left:680,
       top:275,
+    },
+    coverEdit:{
+      position:'absolute',
+      top:210,
+      right:20,
+      bottom:0,
+      zIndex:10
     }
 }));
 
@@ -87,6 +94,22 @@ function Profile() {
     }
   }
 
+  const coverUpdate = async(e)=>{
+
+    try {
+      console.log(e.target.files[0]);
+      let reader = new FileReader
+      reader.readAsDataURL(e.target.files[0])
+      reader.onloadend = async()=>{
+        await axios.post('/api/user/uploadcover/'+owner._id,{image:reader.result})
+        dispatch(listuserDetails(owner._id))
+      }
+    } catch (error) {
+      alert(error)
+      
+    }
+  }
+
   useEffect(()=>{
     const fetchUser = async () =>{
       const res = await axios.get(`/api/user?username=${username}`)
@@ -107,10 +130,19 @@ function Profile() {
           <div className="profileRight">
             <div className={classes.profileRightTop}>
               <div className={classes.profileCover}>
+                <div>
                 <img
                  className={classes.profileCoverImg} 
-                 src="https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_1280.jpg" 
+                 src={user.coverPicture?user.coverPicture:"https://image.shutterstock.com/image-illustration/hd-gaming-thumbnails-background-template-260nw-1808793874.jpg"}
                  />
+
+{sameUser && <div className={classes.coverEdit}>
+                   <label htmlFor="coverimageupdate"><InsertPhoto style={{color:'white'}}/></label>
+                   
+                   <input onChange={(e)=>{coverUpdate(e)}} type='file' id='coverimageupdate' style={{display:'none'}}/>
+                 </div> }
+
+                </div>
                  <div className={classes.profileDiv}>
                    <img
                  className={classes.profileUserImg}

@@ -64,6 +64,10 @@ const UserSchema = new mongoose.Schema(
             type: 'String',
             default: false,
         },
+        favourite:{
+            type: Array,
+            default:[],
+        }
 
     },
     { timestamps: true}

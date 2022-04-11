@@ -25,5 +25,16 @@ router.get('/:conversationId', async(req,res)=>{
     }
 })
 
+//total messages
+
+router.get('/',async(req,res)=>{
+    try {
+        const total = await Message.find()
+        res.status(200).json(total.length)
+    } catch (error) {
+        
+    }
+})
+
 
 module.exports = router

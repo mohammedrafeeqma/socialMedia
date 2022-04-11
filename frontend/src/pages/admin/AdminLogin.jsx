@@ -104,10 +104,10 @@ const useStyles = makeStyles((theme) => ({
 
 function AdminLogin() {
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("admin");
+    // const userId = localStorage.getItem("userId");
     if (token) {
-      navigate(`/${userId}`);
+      navigate(`/admin/home`);
     }
   });
 
@@ -136,11 +136,10 @@ function AdminLogin() {
       let res = await axios.post("/api/admin/login", data);
 
       if (res) {
-        alert("succes");
-        // localStorage.setItem("token", res.data.token)
+        localStorage.setItem("admin", res.data.token)
         // localStorage.setItem('userId',res.data.user._id)
 
-        navigate(`/${res.data.user._id}`);
+        navigate('/admin/home');
       }
     } catch ({ response }) {
       if (response.status) {

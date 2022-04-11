@@ -1,6 +1,7 @@
 import {Avatar, Container, makeStyles, Typography} from "@material-ui/core"
 import { ChatOutlined, EventOutlined, FolderSpecialOutlined, GroupSharp, Home, PeopleAltOutlined } from "@material-ui/icons"
 import {useSelector} from 'react-redux'
+import { useNavigate } from "react-router"
 const useStyles = makeStyles((theme) => ({
     container:{
         position:"sticky",
@@ -31,12 +32,14 @@ const useStyles = makeStyles((theme) => ({
     },
     text:{
         fontWeight: 900,
-        fontSize: "20px"
+        fontSize: "20px",
+        fontFamily:'Bitter'
     }
 }))
 
 function Leftbar(props) {
     const classes = useStyles({val:props.val})
+    const navigate = useNavigate()
 
 
     const userDetails = useSelector( state => state.userDetails)
@@ -47,19 +50,23 @@ function Leftbar(props) {
             <Avatar className={classes.icon} alt="Cindy Baker" src={user.profilePicture? user.profilePicture : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} />
             <Typography className={classes.text}>{user.username}</Typography>
         </div>
-        <div className={classes.item}>
+        <div className={classes.item} onClick={()=>navigate('/chat')}>
             <ChatOutlined className={classes.icon}/>
             <Typography className={classes.text}>Chat</Typography>
-        </div><div className={classes.item}>
+        </div>
+        <div className={classes.item} onClick={()=>navigate('/friends')}>
             <PeopleAltOutlined className={classes.icon}/>
             <Typography className={classes.text}>Friends</Typography>
-        </div><div className={classes.item}>
+        </div>
+        <div onClick={()=>navigate(`/${user._id}/favourite`)} className={classes.item}>
             <FolderSpecialOutlined className={classes.icon}/>
             <Typography className={classes.text}>Favourites</Typography>
-        </div><div className={classes.item}>
+        </div>
+        {/* <div className={classes.item}>
             <GroupSharp className={classes.icon}/>
             <Typography className={classes.text}>Groups</Typography>
-        </div><div className={classes.item}>
+        </div> */}
+        <div className={classes.item} onClick={()=>navigate('/events/all')}>
             <EventOutlined className={classes.icon}/>
             <Typography className={classes.text}>Events</Typography>
         </div>

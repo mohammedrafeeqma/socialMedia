@@ -38,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
     },
     shareInput:{
         border:"none",
-        width:"80%"
+        width:"80%",
+        fontSize:'16px'
     },
     shareHr:{
         margin:"20px",

@@ -1,13 +1,13 @@
 import { Card, makeStyles } from "@material-ui/core";
 import { Cancel, EmojiEmotions, Label, PermMedia, Room } from "@material-ui/icons";
-import { Dialog, DialogTitle, Typography } from "@mui/material";
+import { Dialog, DialogTitle, Tooltip, Typography } from "@mui/material";
 import axios from "axios";
 import { useState } from "react";
 import {useSelector} from 'react-redux'
 
 const useStyles = makeStyles((theme) => ({
   share: {
-    width: "100%",
+    
     borderRadius: "10px",
     backgroundColor: "",
     // marginTop: theme.spacing(5),
@@ -33,7 +33,13 @@ const useStyles = makeStyles((theme) => ({
   shareInput: {
     border: "none",
     width: "80%",
-    height:'100%'
+    height:'100%',
+    fontSize:'16px',
+    "&:hover":{
+      height:'100%',
+      padding:'10px',
+      border:'none'
+    }
   },
   shareHr: {
     margin: "20px",
@@ -170,7 +176,8 @@ function UploadPostDialogue({ openShare, handleClose }) {
           console.log(response);
         }
       }
-    reader.readAsDataURL(file);
+      else{
+         reader.readAsDataURL(file);
     reader.onloadend = async()=>{
       setImage(reader.result)
       
@@ -184,6 +191,8 @@ function UploadPostDialogue({ openShare, handleClose }) {
       }
       
     }
+      }
+   
     
   }
 
@@ -208,7 +217,7 @@ function UploadPostDialogue({ openShare, handleClose }) {
               className={classes.shareProfileImg}
               src={user.profilePicture?user.profilePicture:'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'}
             />
-            <input
+            <textarea
 
               placeholder="What's in your mind"
               value={description}
@@ -234,14 +243,19 @@ function UploadPostDialogue({ openShare, handleClose }) {
                   onInputCapture={(e)=>{setFile(e.target.files[0])}}
                 />
               </label>
+              <Tooltip title="comming soon">
               <div className={(classes.feelings)}>
                 <Label htmlColor="blue" className={classes.shareIcon} />
                 <span className={classes.shareOptionText}>Tag</span>
               </div>
+              </Tooltip>
+              <Tooltip title="comming soon">
               <div className={(classes.feelings)}>
                 <Room htmlColor="green" className={classes.shareIcon} />
                 <span className={classes.shareOptionText}>Location</span>
               </div>
+              </Tooltip>
+              <Tooltip title="comming soon">
               <div className={(classes.feelings)}>
                 <EmojiEmotions
                   htmlColor="goldenrod"
@@ -249,6 +263,7 @@ function UploadPostDialogue({ openShare, handleClose }) {
                 />
                 <span className={classes.shareOptionText}>Feelings</span>
               </div>
+              </Tooltip>
             </div>
             <button className={classes.shareButton} type="submit">
               Share
